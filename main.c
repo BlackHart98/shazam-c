@@ -31,9 +31,10 @@ typedef struct _string{
     size_t max;
     char *str;
 } string;
-void append_str(string*, const char*);
+void append_string(string*, const char*);
 void init_string(string*, size_t);
 void destroy_string(string*);
+int fetch_api_key(string*, const char*, size_t);
 
 
 int main(int argc, char *argv[]){
@@ -49,13 +50,17 @@ int main(int argc, char *argv[]){
     float recording_time = DEFAULT_RECORDING_TIME;
 
     // parsing the arguments (brittle)
+    if (memcmp(argv[idx], "-h", 2) == 0){
+        printf("%s", USAGE);
+        return 0;
+    }
     while (idx <= (argc - 2)){
         if (memcmp(argv[idx], "-h", 2) == 0){
             printf("%s", USAGE);
             return 0;
         } else if (memcmp(argv[idx], "-a", 2) == 0){
             _has_arg_value(idx + 1, argc);
-            append_str(&api_key, argv[idx + 1]);
+            append_string(&api_key, argv[idx + 1]);
             idx += 1;
         } else if (memcmp(argv[idx], "-s", 2) == 0){
             _has_arg_value(idx + 1, argc);
@@ -69,9 +74,6 @@ int main(int argc, char *argv[]){
             _has_arg_value(idx + 1, argc);
             input_format = argv[idx + 1];
             idx += 1;
-        } else {
-            printf("%s", USAGE);
-            exit(1);
         }
         idx++;
     }
@@ -79,32 +81,23 @@ int main(int argc, char *argv[]){
     if (idx >= argc){
         printf("No file provided\n");
         printf("%s", USAGE);
-        exit(1);
+        return 1;
     }
 
     char *file_name = argv[idx];
     // just make it very simple first...
     if (api_key.str == NULL){
-        FILE *fptr = fopen(API_KEY_VAULT, "r");
-        if (fptr == NULL) {
-            printf("Internal error unable to read API key vault.\n");
-            exit(1);
-        }       
-        char buffer[BUFFER_SIZE];  
-        while (fgets(buffer, BUFFER_SIZE, fptr) != NULL) {
-            append_str(&api_key, buffer);
-        }
-        fclose(fptr); 
+        if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
     }
     printf("finally here is your api key: %s\n", api_key.str);
-    
+
     destroy_string(&api_key);
     return 0;
 }
 
 
 // side-effect: Table doubling
-void append_str(string* dst, const char* src){
+void append_string(string* dst, const char* src){
     if (dst->max == (dst->len + strlen(src))) {
         dst->max *= 2;
     } else if (dst->max < (dst->len + strlen(src))){
@@ -126,6 +119,22 @@ void append_str(string* dst, const char* src){
     strcat(dst->str, src);
     dst->len += strlen(src);
 }
+
+
+int fetch_api_key(string* api_key, const char* api_key_vault, size_t buffer_size){
+    FILE *fptr = fopen(api_key_vault, "r");
+    if (fptr == NULL) {
+        printf("Internal error unable to read API key vault.\n");
+        return 1;
+    }       
+    char buffer[buffer_size];  
+    while (fgets(buffer, buffer_size, fptr) != NULL) {
+        append_string(api_key, buffer);
+    }
+    fclose(fptr); 
+    return 0;
+}
+
 
 void init_string(string* vec, size_t init_size){
     vec->len = 0;
