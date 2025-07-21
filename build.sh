@@ -10,6 +10,6 @@ fi
 
 mkdir ./bin
 
-clang main.c -o ./bin/$TARGET_NAME
+clang -fsanitize=address -g -O0 main.c -o ./bin/$TARGET_NAME
 
 echo "Compiled successfully."
