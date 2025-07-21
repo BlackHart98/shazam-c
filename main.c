@@ -2,11 +2,11 @@
 #include<stdlib.h>
 #include<string.h>
 
-#define DEFAULT_AUDIO_SOURCE "avfoundation" // this is because I use mac lol
-#define DEFAULT_RECORDING_TIME 5 // seconds
-#define API_KEY_VAULT ".env"
-#define BUFFER_SIZE 1024
-#define PAYLOAD_BUFFER_SIZE 4096
+#define DEFAULT_AUDIO_SOURCE            "avfoundation" // this is because I use mac lol
+#define DEFAULT_RECORDING_TIME          5 // seconds
+#define API_KEY_VAULT                   ".env" // API vault
+#define BUFFER_SIZE                     1024
+#define PAYLOAD_BUFFER_SIZE             4096
 
 const char USAGE[] = 
     "Usage: shazam [OPTION]... [FILE]\n"
@@ -25,7 +25,8 @@ const char USAGE[] =
 void shazam_from_audio_source(); // shazam music from the audio source
 void shazam_from_file(); // shazam music from file - this will be worked on in the future
 int _has_arg_value(int, int);
-int curl_request(char*, const char*, const char*);
+int curl_request(char*, const char*, const char*); // return non-zero if it fails
+int 
 
 
 
@@ -35,10 +36,10 @@ typedef struct _string{
     size_t max;
     char *str;
 } string;
-int append_string(string*, const char*);
-void init_string(string*, size_t);
-void deinit_string(string*);
-int fetch_api_key(string*, const char*, size_t);
+int append_string(string*, const char*); // return non-zero if it fails
+void init_string(string*, size_t); // return non-zero if it fails
+void deinit_string(string*); // return non-zero if it fails
+int fetch_api_key(string*, const char*, size_t); // return non-zero if it fails
 
 
 int main(int argc, char *argv[]){
@@ -175,11 +176,13 @@ int _has_arg_value(int next_idx, int argc){
     return 0;
 }
 
+// recording utility
+
 
 // curl utility
 int curl_request(char* request, const char *api_key, const char* audio_base_64){
     char buffer[BUFFER_SIZE];
-    if (snprintf(
+    int result = snprintf(
         buffer,
         BUFFER_SIZE,
         "curl --silent -X POST"
@@ -188,8 +191,8 @@ int curl_request(char* request, const char *api_key, const char* audio_base_64){
         "   --header 'x-rapidapi-host: shazam.p.rapidapi.com'"
         "   --header \"x-rapidapi-key: %s\""
         "   --data %s",
-        api_key, audio_base_64) == 1) return 1;
-
+        api_key, audio_base_64);
+    if (result == -1) return -1;
     memcpy(request, buffer, strlen(buffer));
     return 0;
 }
