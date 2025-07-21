@@ -5,7 +5,7 @@
 #define DEFAULT_AUDIO_SOURCE "avfoundation" // this is because I use mac lol
 #define DEFAULT_RECORDING_TIME 5 // seconds
 #define API_KEY_VAULT ".env"
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 1024
 #define PAYLOAD_BUFFER_SIZE 4096
 
 const char USAGE[] = 
@@ -25,7 +25,7 @@ const char USAGE[] =
 void shazam_from_audio_source(); // shazam music from the audio source
 void shazam_from_file(); // shazam music from file - this will be worked on in the future
 int _has_arg_value(int, int);
-int curl_json_request(char*, const char*, ...);
+int curl_request(char*, const char*, const char*);
 
 
 
@@ -37,7 +37,7 @@ typedef struct _string{
 } string;
 int append_string(string*, const char*);
 void init_string(string*, size_t);
-void destroy_string(string*);
+void deinit_string(string*);
 int fetch_api_key(string*, const char*, size_t);
 
 
@@ -96,7 +96,11 @@ int main(int argc, char *argv[]){
     }
     printf("finally here is your api key: %s\n", api_key->str);
 
-    destroy_string(api_key);
+    char request[PAYLOAD_BUFFER_SIZE];
+    curl_request(request, api_key->str, "some_b64");
+
+    printf("curl request: %s\n", request);
+    deinit_string(api_key);
     return 0;
 }
 
@@ -151,13 +155,14 @@ void init_string(string* vec, size_t init_size){
     vec->str = NULL;
 }
 
-void destroy_string(string* vec){
+void deinit_string(string* vec){
     if (vec->str != NULL){
         free(vec->str);
         vec->str = NULL;
     }
     if (vec != NULL){
         free(vec);
+        vec = NULL;
     }
 }
 
@@ -171,15 +176,20 @@ int _has_arg_value(int next_idx, int argc){
 }
 
 
-
 // curl utility
-int curl_json_request(char* request, const char str[PAYLOAD_BUFFER_SIZE], ...){
-    char buffer[PAYLOAD_BUFFER_SIZE];
+int curl_request(char* request, const char *api_key, const char* audio_base_64){
+    char buffer[BUFFER_SIZE];
     if (snprintf(
         buffer,
-        PAYLOAD_BUFFER_SIZE,
-        "%s",
-        str
-    ) == 1) return 1;
+        BUFFER_SIZE,
+        "curl --silent -X POST"
+        "   'https://shazam.p.rapidapi.com/songs/v2/detect'"
+        "   --header 'content-type: text/plain'"
+        "   --header 'x-rapidapi-host: shazam.p.rapidapi.com'"
+        "   --header \"x-rapidapi-key: %s\""
+        "   --data %s",
+        api_key, audio_base_64) == 1) return 1;
+
+    memcpy(request, buffer, strlen(buffer));
     return 0;
 }
