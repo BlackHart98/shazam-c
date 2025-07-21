@@ -175,9 +175,6 @@ int _has_arg_value(int next_idx, int argc){
     return 0;
 }
 
-// recording utility
-
-
 // curl utility
 int curl_request(char* request, const char *api_key, const char* audio_base_64){
     char buffer[BUFFER_SIZE];
