@@ -24,7 +24,7 @@ const char USAGE[] =
 void shazam_from_audio_source(); // shazam music from the audio source
 void shazam_from_file(); // shazam music from file - this will be worked on in the future
 int _has_arg_value(int, int);
-void curl_json_request(char*, const char*, ...);
+int curl_json_request(char*, const char*, ...);
 
 
 
@@ -172,7 +172,7 @@ int _has_arg_value(int next_idx, int argc){
 
 
 // curl utility
-void curl_json_request(char* request, const char str[BUFFER_SIZE], ...){
+int curl_json_request(char* request, const char str[BUFFER_SIZE], ...){
     char buffer[BUFFER_SIZE];
     snprintf(
         buffer,
