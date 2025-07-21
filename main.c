@@ -26,7 +26,8 @@ void shazam_from_audio_source(); // shazam music from the audio source
 void shazam_from_file(); // shazam music from file - this will be worked on in the future
 int _has_arg_value(int, int);
 int curl_request(char*, const char*, const char*); // return non-zero if it fails
-int 
+int record_audio_from_source();
+int record_audio_from_file();
 
 
 
