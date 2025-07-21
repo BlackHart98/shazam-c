@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include"ffmpeg.h"
 
 #define DEFAULT_AUDIO_SOURCE            "avfoundation" // this is because I use mac lol
 #define DEFAULT_RECORDING_TIME          5 // seconds
@@ -26,8 +27,6 @@ void shazam_from_audio_source(); // shazam music from the audio source
 void shazam_from_file(); // shazam music from file - this will be worked on in the future
 int _has_arg_value(int, int);
 int curl_request(char*, const char*, const char*); // return non-zero if it fails
-int record_audio_from_source();
-int record_audio_from_file();
 
 
 
@@ -123,15 +122,14 @@ int append_string(string* dst, const char* src){
         dst->str[0] = '\0';
 
     } else{
-        char *temp_ = (char*) malloc(dst->max);
+        char *temp_ = (char*) realloc(dst->str, dst->max);
         if (temp_ == NULL) return 1;
-        memcpy(temp_, dst->str, dst->len);
-        free(dst->str);
+        if (dst->str != NULL) free(dst->str);
         dst->str=temp_;
         dst->str[dst->len] = '\0';
     }
     strcat(dst->str, src);
-    dst->len += strlen(src);
+    dst->len += src_len;
     return 0;
 }
 

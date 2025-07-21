@@ -4,12 +4,12 @@ set -e
 
 TARGET_NAME=main
 
-if [ -d "bin" ]; then
-    rm -rf ./bin
+if [ -d "build" ]; then
+    rm -rf ./build
 fi
 
-mkdir ./bin
+mkdir ./build
 
-clang -fsanitize=address -g -O0 main.c -o ./bin/$TARGET_NAME
+clang -fsanitize=address -g -O0 ./src/main.c -o ./build/$TARGET_NAME
 
 echo "Compiled successfully."
