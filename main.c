@@ -42,8 +42,8 @@ int main(int argc, char *argv[]){
         return 1;
     }
     int idx = 1;
-    string* api_key = (string*) malloc(sizeof(string*));
-    init_string(api_key, 2);
+    string api_key;
+    init_string(&api_key, 2);
     char *input_format = NULL;
     char *audio_source = DEFAULT_AUDIO_SOURCE;
     float recording_time = DEFAULT_RECORDING_TIME;
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
             return 0;
         } else if (memcmp(argv[idx], "-a", 2) == 0){
             _has_arg_value(idx + 1, argc);
-            append_str(api_key, argv[idx + 1]);
+            append_str(&api_key, argv[idx + 1]);
             idx += 1;
         } else if (memcmp(argv[idx], "-s", 2) == 0){
             _has_arg_value(idx + 1, argc);
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
 
     char *file_name = argv[idx];
     // just make it very simple first...
-    if (api_key->str == NULL){
+    if (api_key.str == NULL){
         FILE *fptr = fopen(API_KEY_VAULT, "r");
         if (fptr == NULL) {
             printf("Internal error unable to read API key vault.\n");
@@ -92,14 +92,13 @@ int main(int argc, char *argv[]){
         }       
         char buffer[BUFFER_SIZE];  
         while (fgets(buffer, BUFFER_SIZE, fptr) != NULL) {
-            append_str(api_key, buffer);
+            append_str(&api_key, buffer);
         }
         fclose(fptr); 
     }
-    printf("finally here is your api key: %s\n", api_key->str);
+    printf("finally here is your api key: %s\n", api_key.str);
 
-    
-    destroy_string(api_key);
+    destroy_string(&api_key);
     return 0;
 }
 
@@ -141,7 +140,6 @@ void init_string(string* vec, size_t init_size){
 
 void destroy_string(string* vec){
     free(vec->str);
-    free(vec);
 }
 
 void _has_arg_value(int next_idx, int argc){
