@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
     if (api_key->str == NULL){
         if (fetch_api_key(api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
     }
-    printf("finally here is your api key: %s", api_key->str);
+    printf("finally here is your api key: %s\n", api_key->str);
 
     destroy_string(api_key);
     return 0;
