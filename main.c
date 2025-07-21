@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
     }
     int idx = 1;
     string api_key;
-    init_string(&api_key, 2);
+    init_string(&api_key, 20);
     char *input_format = NULL;
     char *audio_source = DEFAULT_AUDIO_SOURCE;
     float recording_time = DEFAULT_RECORDING_TIME;
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]){
         fclose(fptr); 
     }
     printf("finally here is your api key: %s\n", api_key.str);
-
+    
     destroy_string(&api_key);
     return 0;
 }
@@ -140,6 +140,7 @@ void init_string(string* vec, size_t init_size){
 
 void destroy_string(string* vec){
     free(vec->str);
+    vec->str = NULL;
 }
 
 void _has_arg_value(int next_idx, int argc){
