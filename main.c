@@ -6,6 +6,7 @@
 #define DEFAULT_RECORDING_TIME 5 // seconds
 #define API_KEY_VAULT ".env"
 #define BUFFER_SIZE 4096
+#define PAYLOAD_BUFFER_SIZE 4096
 
 const char USAGE[] = 
     "Usage: shazam [OPTION]... [FILE]\n"
@@ -172,12 +173,13 @@ int _has_arg_value(int next_idx, int argc){
 
 
 // curl utility
-int curl_json_request(char* request, const char str[BUFFER_SIZE], ...){
-    char buffer[BUFFER_SIZE];
-    snprintf(
+int curl_json_request(char* request, const char str[PAYLOAD_BUFFER_SIZE], ...){
+    char buffer[PAYLOAD_BUFFER_SIZE];
+    if (snprintf(
         buffer,
-        BUFFER_SIZE,
+        PAYLOAD_BUFFER_SIZE,
         "%s",
         str
-    );
+    ) == 1) return 1;
+    return 0;
 }
