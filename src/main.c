@@ -5,10 +5,10 @@
 #include"ffmpeg.h"
 #include"utils.h"
 
-#define DEFAULT_AUDIO_SOURCE            ":1" // this is because I use mac lol
-#define DEFAULT_MEDIA_FORMAT            "avfoundation" // this is because I use mac lol
-#define DEFAULT_RECORDING_TIME          5 // seconds
-#define API_KEY_VAULT                   ".env" // API vault
+#define DEFAULT_AUDIO_SOURCE            ":1"                    // this is because I use mac lol
+#define DEFAULT_MEDIA_FORMAT            "avfoundation"          // this is because I use mac lol
+#define DEFAULT_RECORDING_TIME          5                       // seconds
+#define API_KEY_VAULT                   ".env"                  // API vault
 #define BUFFER_SIZE                     1024
 #define PAYLOAD_BUFFER_SIZE             4096
 
@@ -27,12 +27,12 @@ const char USAGE[] =
     "     -t RECORDING_TIME     Length of recording time, in seconds, (default: 5).\n"
     "     -i INPUT_FORMAT\n";
 
-void shazam_from_audio_source(); // shazam music from the audio source
-void shazam_from_file(); // shazam music from file - this will be worked on in the future
+void shazam_from_audio_source();                            // shazam music from the audio source
+void shazam_from_file();                                    // shazam music from file - this will be worked on in the future
 int _has_arg_value(int, int);
-int curl_request(char*, const char*, const char*); // return non-zero if it fails
+int curl_request(char*, const char*, const char*);          // return non-zero if it fails
 
-int fetch_api_key(string*, const char*, size_t);         // return non-zero if it fails
+int fetch_api_key(string*, const char*, size_t);            // return non-zero if it fails
 
 
 int main(int argc, char *argv[]){
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]){
     string file_name = init_string(20);
     if (idx < argc) append_string(&file_name, argv[idx]);
 
-    // just make it very simple first...
+    // just make it very simple first, at least I will be learning C along with
     if (api_key.str == NULL){
         if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
     }
@@ -126,7 +126,8 @@ int _has_arg_value(int next_idx, int argc){
     return 0;
 }
 
-// curl utility
+// curl utility - this won't be used at all lol! I just wanted to put this here 
+// so I don't need to do a look up
 int curl_request(char* request, const char *api_key, const char* audio_base_64){
     char buffer[BUFFER_SIZE];
     int result = snprintf(
