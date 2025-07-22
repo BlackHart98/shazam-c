@@ -11,6 +11,8 @@
 #define API_KEY_VAULT                   ".env"                  // API vault
 #define BUFFER_SIZE                     1024
 #define PAYLOAD_BUFFER_SIZE             4096
+#define DEFAULT_AUDIO_FILE            "./tmp/recording.dat"
+#define DEFAULT_AUDIO_B64_FILE        "./tmp/recording_b64.dat"
 
 
 const char USAGE[] = 
@@ -36,22 +38,15 @@ int fetch_api_key(string*, const char*, size_t);            // return non-zero i
 
 
 int main(int argc, char *argv[]){
-    if (argc < 2){
-        printf("%s", USAGE);
-        return 1;
-    }
-    int idx = 1;
+    int idx = 0;
     string api_key = init_string(20);
     char *input_format = NULL;
     char *audio_source = DEFAULT_AUDIO_SOURCE;
-    float recording_time = DEFAULT_RECORDING_TIME;
+    int recording_time = DEFAULT_RECORDING_TIME;
 
     // parsing the arguments (brittle)
-    if (memcmp(argv[idx], "-h", 2) == 0){
-        printf("%s", USAGE);
-        return 0;
-    }
-    while (idx <= (argc - 2)){
+    while (idx < argc){
+        printf("DEBUG: %s", argv[idx]);
         if (memcmp(argv[idx], "-h", 2) == 0){
             printf("%s", USAGE);
             return 0;
@@ -65,38 +60,45 @@ int main(int argc, char *argv[]){
             idx += 1;
         } else if (memcmp(argv[idx], "-t", 2) == 0){
             try_or_return(_has_arg_value(idx + 1, argc), 1, 1);
-            recording_time = atof(argv[idx + 1]);
+            recording_time = atoi(argv[idx + 1]);
             idx += 1;
         } else if (memcmp(argv[idx], "-i", 2) == 0){
             try_or_return(_has_arg_value(idx + 1, argc), 1, 1);
             input_format = argv[idx + 1];
             idx += 1;
+        } else {
+            break;
         }
         idx++;
     }
 
     string file_name = init_string(20);
-    if (idx < argc) append_string(&file_name, argv[idx]);
-
-    // just make it very simple first, at least I will be learning C along with
-    if (api_key.str == NULL){
-        if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
-    }
-    printf("finally here is your api key: %s\n", api_key.str);
-
-    char request[PAYLOAD_BUFFER_SIZE];
-    curl_request(request, api_key.str, "some_b64");
-
-    printf("curl request: %s\n", request);
-
-
-    try_or_return(
+    if (idx < argc && argc != 1) {
+        append_string(&file_name, argv[idx]);
+        // convert file
+    } else {
+        append_string(&file_name, DEFAULT_AUDIO_FILE);
+        try_or_return(
         ffmpeg_record_audio_from_source(
             DEFAULT_MEDIA_FORMAT, 
             audio_source, 
-            file_name.str), 
+            file_name.str,
+            recording_time), 
         1, 
         1);
+    }
+
+    // just make it very simple first, at least I will be learning C along with
+    // if (api_key.str == NULL){
+    //     if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
+    // }
+    // printf("finally here is your api key: %s\n", api_key.str);
+
+    // char request[PAYLOAD_BUFFER_SIZE];
+    // curl_request(request, api_key.str, "some_b64");
+
+    // printf("curl request: %s\n", request);
+
 
     deinit_string(&api_key);
     deinit_string(&file_name);
@@ -104,11 +106,8 @@ int main(int argc, char *argv[]){
 }
 
 int fetch_api_key(string* api_key, const char* api_key_vault, size_t buffer_size){
-    FILE *fptr = fopen(api_key_vault, "r");
-    if (fptr == NULL) {
-        printf("Internal error unable to read API key vault.\n");
-        return 1;
-    }       
+    FILE *fptr = fopen(api_key_vault, "r"); 
+    try_or_return_msg(fptr, NULL, 1, "Internal error unable to read API key vault."); 
     char buffer[buffer_size];  
     while (fgets(buffer, buffer_size, fptr) != NULL) {
         append_string(api_key, buffer);

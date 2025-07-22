@@ -7,7 +7,7 @@
     failure_result,                     \
     failure_return,                     \
     message)                            if (function_call == failure_result) {\
-                                            printf("%s", message);\
+                                            printf("%s\n", message);\
                                             return failure_return;\
                                         }
 

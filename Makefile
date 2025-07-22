@@ -33,7 +33,7 @@ $(BUILD_PATH)/utils.o:
 	@$(CC) $(CFLAGS) -c ./src/utils.c -o $(BUILD_PATH)/utils.o
 
 clean:
-	@rm -r $(BUILD_PATH)/
+	@rm -rf $(BUILD_PATH)/
 
 create_dir:
 	@mkdir -p $(BUILD_PATH)/
