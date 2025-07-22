@@ -59,7 +59,7 @@ int ffmpeg_record_audio_from_source(
         fflush(stdout);
 
         int ret = execlp(
-            "ffmpg", 
+            "ffmpeg", 
             "-hide_banner", 
             "-f", media_format, "-i", audio_source,
             "-ac", "1", "-f", "s16le", "-acodec", "pcm_s16le", "-ar", "44100",
