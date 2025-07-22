@@ -70,12 +70,7 @@ int ffmpeg_record_audio_from_source(
 }
 
 
-int ffmpeg_record_audio_from_file(const char *media_format){
-    return 0;
-}
-
-
-// int convert_audio_to_dat
+int convert_audio_to_dat(){}
 
 
 int recording_ffmpeg(const char *audio_source){

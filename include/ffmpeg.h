@@ -8,7 +8,7 @@ int ffmpeg_record_audio_from_source(
     const char *audio_source, 
     const char *audio_file_target,
     int recording_time);
-int ffmpeg_record_audio_from_file(const char *media_format);
+int convert_audio_to_dat(){}
 
 
 
