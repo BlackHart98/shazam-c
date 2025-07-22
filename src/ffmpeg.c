@@ -70,7 +70,7 @@ int ffmpeg_record_audio_from_source(
 }
 
 
-int convert_audio_to_dat(){}
+int convert_audio_to_dat(){return 0;}
 
 
 int recording_ffmpeg(const char *audio_source){
