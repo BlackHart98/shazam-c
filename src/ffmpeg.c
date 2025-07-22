@@ -52,7 +52,7 @@ int ffmpeg_record_audio_from_source(
         if (audio_file_target != NULL) {
             append_string(&_audio_file_target, audio_file_target);
         } else {
-            append_string(&_audio_file_target, DEFAULT_AUDIO_B64_FILE);
+            append_string(&_audio_file_target, DEFAULT_AUDIO_FILE);
         }
         int fd = open("sample_fifo", O_WRONLY);
         printf("hello world ffmpeg! from child process %d\n.", id);
