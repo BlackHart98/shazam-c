@@ -6,6 +6,7 @@
 
 #include"ffmpeg.h"
 #include"utils.h"
+#include"base64.h"
 
 #define DEFAULT_AUDIO_SOURCE                    ":1"                        // this is because I use mac lol
 #define DEFAULT_MEDIA_FORMAT                    "avfoundation"              // this is because I use mac lol
@@ -77,7 +78,6 @@ int main(int argc, char *argv[]){
     if (idx < argc) {
         append_string(&file_name, argv[idx]);
         // convert file
-        printf("playing.....%s\n", file_name.str);
         struct stat buffer;
         try_or_return_msg(stat(file_name.str, &buffer), -1, 1, "Could not find the file.");
         convert_audio_to_dat(file_name.str, DEFAULT_AUDIO_FILE_CONVERTED, recording_time_str);
@@ -98,7 +98,14 @@ int main(int argc, char *argv[]){
         if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
     }
     // printf("finally here is your api key: %s\n", api_key.str);
-
+    char* foobar = encode64("M", strlen("M"));
+    printf(":::::::::::::::::::::::::::::::::::::::::::::::::\n");
+    printf("here you go: %s\n", foobar);
+    printf(":::::::::::::::::::::::::::::::::::::::::::::::::\n");
+    if (foobar != NULL) {
+        free(foobar);
+        foobar = NULL;
+    }
     deinit_string(&api_key);
     deinit_string(&file_name);
     return 0;

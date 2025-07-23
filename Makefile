@@ -6,7 +6,7 @@ BUILD_PATH = ./build
 
 
 
-OBJS = $(BUILD_PATH)/main.o $(BUILD_PATH)/ffmpeg.o $(BUILD_PATH)/utils.o
+OBJS = $(BUILD_PATH)/main.o $(BUILD_PATH)/ffmpeg.o $(BUILD_PATH)/utils.o $(BUILD_PATH)/base64.o
 
 # TESTOBJS = $(BUILD_PATH)/ffmpeg.o $(BUILD_PATH)/utils.o
 
@@ -31,6 +31,9 @@ $(BUILD_PATH)/ffmpeg.o:
 
 $(BUILD_PATH)/utils.o:
 	@$(CC) $(CFLAGS) -c ./src/utils.c -o $(BUILD_PATH)/utils.o
+
+$(BUILD_PATH)/base64.o:
+	@$(CC) $(CFLAGS) -c ./src/base64.c -o $(BUILD_PATH)/base64.o
 
 clean:
 	@rm -rf $(BUILD_PATH)/
