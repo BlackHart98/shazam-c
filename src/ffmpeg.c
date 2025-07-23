@@ -17,9 +17,9 @@
 
 
 
-#define CHILD_PROCESS                 0
-#define AUDIO_BUFFER_SIZE             1024
-
+#define CHILD_PROCESS                    0
+#define AUDIO_BUFFER_SIZE                1024
+#define FILEPATH_BUFFER_SIZE             4096
 
 
 void _start_recording(
@@ -28,7 +28,7 @@ void _start_recording(
     const char *audio_file_target
 ){
     int ret = execlp(
-        "ffmpeg", 
+        "ffmpeg", "ffmpeg", 
         "-hide_banner", 
         "-f", media_format, "-i", audio_source,
         "-ac", "1", "-f", "s16le", "-acodec", "pcm_s16le", "-ar", "44100",
@@ -46,7 +46,7 @@ int ffmpeg_record_audio_from_source(
     const char *audio_file_target,
     int recording_time 
 ){
-    int id = fork();
+    pid_t id = fork();
     if (id == CHILD_PROCESS){
         _start_recording(
             media_format, 
@@ -61,7 +61,6 @@ int ffmpeg_record_audio_from_source(
             printf("Could not issue SIGTERM");
         }
 
-        // Wait for child to exit
         wait(NULL);
         printf("Parent: done.\n");
         printf("hello world ffmpeg! from main process %d\n.", id);
@@ -70,12 +69,33 @@ int ffmpeg_record_audio_from_source(
 }
 
 
-int convert_audio_to_dat(){return 0;}
-
-
-int recording_ffmpeg(const char *audio_source){
-    char buffer[AUDIO_BUFFER_SIZE];
-    return 1;
+int convert_audio_to_dat(
+    const char *audio_file_source, 
+    const char *audio_target_dat, 
+    const char *recording_time
+){
+    pid_t id = fork();
+    if (id == CHILD_PROCESS){
+        int ret = execlp(
+            "ffmpeg", "ffmpeg",
+            "-ss", "10", "-t", recording_time,
+            "-i", audio_file_source,
+            "-ac", "1", "-f", "s16le", "-acodec", "pcm_s16le", "-ar", "44100",
+            "-y", audio_target_dat,
+            NULL);
+        if (ret == -1){
+            perror("Failed to read audio file.");
+            exit(1);
+        }
+        exit(0);
+    } else if (id == -1){
+        perror("Failed to create child process.");
+        return 1;
+    } else {
+        wait(NULL);
+        printf("Hello world.");
+    }
+    return 0;
 }
 
 

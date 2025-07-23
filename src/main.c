@@ -1,18 +1,21 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include <sys/stat.h>
+#include <stdbool.h>   
 
 #include"ffmpeg.h"
 #include"utils.h"
 
-#define DEFAULT_AUDIO_SOURCE            ":1"                    // this is because I use mac lol
-#define DEFAULT_MEDIA_FORMAT            "avfoundation"          // this is because I use mac lol
-#define DEFAULT_RECORDING_TIME          5                       // seconds
-#define API_KEY_VAULT                   ".env"                  // API vault
-#define BUFFER_SIZE                     1024
-#define PAYLOAD_BUFFER_SIZE             4096
-#define DEFAULT_AUDIO_FILE            "./tmp/recording.dat"
-#define DEFAULT_AUDIO_B64_FILE        "./tmp/recording_b64.dat"
+#define DEFAULT_AUDIO_SOURCE                    ":1"                        // this is because I use mac lol
+#define DEFAULT_MEDIA_FORMAT                    "avfoundation"              // this is because I use mac lol
+#define DEFAULT_RECORDING_TIME                  "5"                         // seconds
+#define API_KEY_VAULT                           ".env"                      // API vault
+#define BUFFER_SIZE                             1024
+#define PAYLOAD_BUFFER_SIZE                     4096
+#define DEFAULT_AUDIO_FILE                      "./tmp/recording.dat"
+#define DEFAULT_AUDIO_B64_FILE                  "./tmp/recording_b64.dat"
+#define DEFAULT_AUDIO_FILE_CONVERTED            "./tmp/converted.dat"
 
 
 const char USAGE[] = 
@@ -38,15 +41,14 @@ int fetch_api_key(string*, const char*, size_t);            // return non-zero i
 
 
 int main(int argc, char *argv[]){
-    int idx = 0;
-    string api_key = init_string(20);
+    int idx = 1;
+    string api_key = init_string(100);
     char *input_format = NULL;
     char *audio_source = DEFAULT_AUDIO_SOURCE;
-    int recording_time = DEFAULT_RECORDING_TIME;
+    char *recording_time_str = DEFAULT_RECORDING_TIME;
 
     // parsing the arguments (brittle)
     while (idx < argc){
-        printf("DEBUG: %s", argv[idx]);
         if (memcmp(argv[idx], "-h", 2) == 0){
             printf("%s", USAGE);
             return 0;
@@ -60,7 +62,7 @@ int main(int argc, char *argv[]){
             idx += 1;
         } else if (memcmp(argv[idx], "-t", 2) == 0){
             try_or_return(_has_arg_value(idx + 1, argc), 1, 1);
-            recording_time = atoi(argv[idx + 1]);
+            recording_time_str = argv[idx + 1];
             idx += 1;
         } else if (memcmp(argv[idx], "-i", 2) == 0){
             try_or_return(_has_arg_value(idx + 1, argc), 1, 1);
@@ -71,34 +73,31 @@ int main(int argc, char *argv[]){
         }
         idx++;
     }
-
-    string file_name = init_string(20);
-    if (idx < argc && argc != 1) {
+    string file_name = init_string(100);
+    if (idx < argc) {
         append_string(&file_name, argv[idx]);
         // convert file
+        printf("playing.....%s\n", file_name.str);
+        struct stat buffer;
+        try_or_return_msg(stat(file_name.str, &buffer), -1, 1, "Could not find the file.");
+        convert_audio_to_dat(file_name.str, DEFAULT_AUDIO_FILE_CONVERTED, recording_time_str);
     } else {
         append_string(&file_name, DEFAULT_AUDIO_FILE);
         try_or_return(
-        ffmpeg_record_audio_from_source(
-            DEFAULT_MEDIA_FORMAT, 
-            audio_source, 
-            file_name.str,
-            recording_time), 
-        1, 
-        1);
+            ffmpeg_record_audio_from_source(
+                DEFAULT_MEDIA_FORMAT, 
+                audio_source, 
+                file_name.str,
+                atoi(recording_time_str)), 
+            1, 
+            1);
     }
 
     // just make it very simple first, at least I will be learning C along with
-    // if (api_key.str == NULL){
-    //     if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
-    // }
+    if (api_key.str == NULL){
+        if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
+    }
     // printf("finally here is your api key: %s\n", api_key.str);
-
-    // char request[PAYLOAD_BUFFER_SIZE];
-    // curl_request(request, api_key.str, "some_b64");
-
-    // printf("curl request: %s\n", request);
-
 
     deinit_string(&api_key);
     deinit_string(&file_name);
