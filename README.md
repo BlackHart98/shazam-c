@@ -2,4 +2,4 @@
 Shazam music from the CLI
 
 
-This is a C clone of this project https://github.com/loiccoyle/shazam-cli
+This is a largely inspired by this project https://github.com/loiccoyle/shazam-cli

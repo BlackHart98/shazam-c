@@ -1,50 +1,50 @@
-CC = clang
-CFLAGS = -fsanitize=address -g -O0 -Iinclude -Wall -Werror -ftime-trace
+# Compiler and Flags
+CC := clang
+CFLAGS_DEBUG := -fsanitize=address -g -O0 -Iinclude -Wall -Werror -ftime-trace
+CFLAGS_RELEASE := -g -O3 -Iinclude
 
+# Linking
+LDFLAGS := -L/opt/homebrew/opt/curl/lib -lcurl
 
-BUILD_PATH = ./build
-LDFLAGS = -L/opt/homebrew/opt/curl/lib -lcurl
+# Paths
+SRC_DIR := ./src
+BUILD_DIR := build
+BIN_DIR := $(BUILD_DIR)
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
+# Targets
+TARGET_DEBUG := $(BIN_DIR)/shazam_clone_d
+TARGET_RELEASE := $(BIN_DIR)/shazam_clone
 
+# Default target
+all: $(TARGET_DEBUG)
 
-OBJS = $(BUILD_PATH)/main.o $(BUILD_PATH)/ffmpeg.o $(BUILD_PATH)/utils.o $(BUILD_PATH)/base64.o
+# Debug Build
+$(TARGET_DEBUG): CFLAGS := $(CFLAGS_DEBUG)
+$(TARGET_DEBUG): $(OBJS)
+	@mkdir -p $(BIN_DIR)
+	@echo "Linking $@ ..."
+	@$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-# TESTOBJS = $(BUILD_PATH)/ffmpeg.o $(BUILD_PATH)/utils.o
+# Release Build
+release: $(TARGET_RELEASE)
 
-build: create_dir $(BUILD_PATH)/main
+$(TARGET_RELEASE): CFLAGS := $(CFLAGS_RELEASE)
+$(TARGET_RELEASE): $(OBJS)
+	@mkdir -p $(BIN_DIR)
+	@echo "Linking $@ ..."
+	@$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-tests: clean create_dir $(TESTOBJS)
+# Object compilation
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(BUILD_DIR)
+	@echo "Compiling $< ..."
+	@$(CC) $(CFLAGS) -c $< -o $@
 
-build-clean: clean create_dir $(BUILD_PATH)/main
-
-
-$(BUILD_PATH)/main: $(OBJS)
-	@echo "Compiling $(BUILD_PATH)/main ..."
-	@$(CC) $(CFLAGS) $(OBJS) -o $(BUILD_PATH)/main $(LDFLAGS)
-	@echo "Compilation successful."
-
-
-$(BUILD_PATH)/main.o: 
-	@$(CC) $(CFLAGS) -c ./src/main.c -o $(BUILD_PATH)/main.o
-
-$(BUILD_PATH)/ffmpeg.o:
-	@$(CC) $(CFLAGS) -c ./src/ffmpeg.c -o $(BUILD_PATH)/ffmpeg.o
-
-$(BUILD_PATH)/utils.o:
-	@$(CC) $(CFLAGS) -c ./src/utils.c -o $(BUILD_PATH)/utils.o
-
-$(BUILD_PATH)/base64.o:
-	@$(CC) $(CFLAGS) -c ./src/base64.c -o $(BUILD_PATH)/base64.o
-
+# Clean
+.PHONY: clean
 clean:
-	@rm -rf $(BUILD_PATH)/
-
-create_dir:
-	@mkdir -p $(BUILD_PATH)/
-
-
-
-
-
-
+	@echo "Cleaning build artifacts..."
+	@rm -rf $(BUILD_DIR)
 
