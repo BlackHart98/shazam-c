@@ -85,12 +85,11 @@ int main(int argc, char *argv[]){
         try_or_return_msg(stat(file_name.str, &buffer), -1, 1, "Could not find the file.");
         convert_audio_to_dat(file_name.str, DEFAULT_AUDIO_FILE_CONVERTED, recording_time_str);
     } else {
-        append_string(&file_name, DEFAULT_AUDIO_FILE, NULL);
         try_or_return(
             ffmpeg_record_audio_from_source(
                 DEFAULT_MEDIA_FORMAT, 
                 audio_source, 
-                file_name.str,
+                DEFAULT_AUDIO_FILE,
                 atoi(recording_time_str)), 
             1, 
             1);
@@ -101,9 +100,16 @@ int main(int argc, char *argv[]){
         if (fetch_api_key(&api_key, API_KEY_VAULT) != 0) return 1;
     }
     // printf("finally here is your api key: %s\n", api_key.str);
-    char *audio_b64 = parse_dat_file(DEFAULT_AUDIO_FILE_CONVERTED);
+    char *audio_b64;
+    if (file_name.len == 0){
+        audio_b64 = parse_dat_file(DEFAULT_AUDIO_FILE);
+    } else {
+        audio_b64 = parse_dat_file(DEFAULT_AUDIO_FILE_CONVERTED);
+    }
+
     printf(":::::::::::::::::Audio Base 64:::::::::::::::::::::::::\n");
     printf("%s\n", audio_b64);
+    try_or_return_msg(audio_b64, NULL, 1, "Could not generate base 64");
 
     string json_response = init_string(100);
     curl_request(&json_response, &api_key, audio_b64);
