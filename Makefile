@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -fsanitize=address -g -O0 -Iinclude -Wall -Werror
+CFLAGS = -fsanitize=address -g -O0 -Iinclude -Wall -Werror -ftime-trace
 
 
 BUILD_PATH = ./build
