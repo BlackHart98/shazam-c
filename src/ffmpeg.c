@@ -115,17 +115,9 @@ char* parse_dat_file(const char* dat_file){
         return NULL;
     }
 
-    printf("file size: %liKiB\n", file_size / 1024);
-
+    // printf("file size: %liKiB\n", file_size / 1024);
+    
     size_t read = fread(buffer, 1, file_size, fptr);
-
-    for (size_t i = 0; i < read; i++) {
-        printf("%02X ", buffer[i]);  // Print in hex
-        if ((i + 1) % 16 == 0) {
-            printf("\n");
-            break;
-        }
-    }
     char* result = encode64(buffer, read);
     fclose(fptr);free(buffer);
     return result;
