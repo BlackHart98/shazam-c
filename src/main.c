@@ -38,13 +38,13 @@ void shazam_from_file();                                    // shazam music from
 int _has_arg_value(int, int);
 int curl_request(char*, const char*, const char*);          // return non-zero if it fails
 
-int fetch_api_key(string*, const char*, size_t);            // return non-zero if it fails
+int fetch_api_key(string*, const char*);            // return non-zero if it fails
 
 
 int main(int argc, char *argv[]){
     int idx = 1;
     string api_key = init_string(100);
-    char *input_format = NULL;
+    // char *input_format = NULL;
     char *audio_source = DEFAULT_AUDIO_SOURCE;
     char *recording_time_str = DEFAULT_RECORDING_TIME;
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
             idx += 1;
         } else if (memcmp(argv[idx], "-i", 2) == 0){
             try_or_return(_has_arg_value(idx + 1, argc), 1, 1);
-            input_format = argv[idx + 1];
+            // input_format = argv[idx + 1];
             idx += 1;
         } else {
             break;
@@ -95,27 +95,24 @@ int main(int argc, char *argv[]){
 
     // just make it very simple first, at least I will be learning C along with
     if (api_key.str == NULL){
-        if (fetch_api_key(&api_key, API_KEY_VAULT, BUFFER_SIZE) != 0) return 1;
+        if (fetch_api_key(&api_key, API_KEY_VAULT) != 0) return 1;
     }
     // printf("finally here is your api key: %s\n", api_key.str);
-    char* foobar = encode64("M", strlen("M"));
-    printf(":::::::::::::::::::::::::::::::::::::::::::::::::\n");
-    printf("here you go: %s\n", foobar);
-    printf(":::::::::::::::::::::::::::::::::::::::::::::::::\n");
-    if (foobar != NULL) {
-        free(foobar);
-        foobar = NULL;
-    }
+    char *audio_b64 = parse_dat_file(DEFAULT_AUDIO_FILE_CONVERTED);
+    printf(":::::::::::::::::Audio Base 64:::::::::::::::::::::::::\n");
+    printf("%s\n", audio_b64);
+
+    if (audio_b64 != NULL) free(audio_b64);
     deinit_string(&api_key);
     deinit_string(&file_name);
     return 0;
 }
 
-int fetch_api_key(string* api_key, const char* api_key_vault, size_t buffer_size){
+int fetch_api_key(string* api_key, const char* api_key_vault){
     FILE *fptr = fopen(api_key_vault, "r"); 
     try_or_return_msg(fptr, NULL, 1, "Internal error unable to read API key vault."); 
-    char buffer[buffer_size];  
-    while (fgets(buffer, buffer_size, fptr) != NULL) {
+    char buffer[BUFFER_SIZE];  
+    while (fgets(buffer, BUFFER_SIZE, fptr) != NULL) {
         append_string(api_key, buffer);
     }
     fclose(fptr); 

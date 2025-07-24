@@ -26,6 +26,7 @@ typedef struct _string{
 int append_string(string*, const char*);                 // return non-zero if it fails
 string init_string(size_t);                              // return non-zero if it fails
 void deinit_string(string*);                             // return non-zero if it fails
+int append_char(string*, const char);                    // return non-zero if it fails
 
 
 

@@ -14,6 +14,7 @@
 
 #include"ffmpeg.h"
 #include"utils.h"
+#include<base64.h>
 
 
 
@@ -58,7 +59,7 @@ int ffmpeg_record_audio_from_source(
     } else if (id != CHILD_PROCESS){
         sleep(recording_time);
         if (kill(id, SIGTERM) == -1) {
-            printf("Could not issue SIGTERM");
+            printf("Could not issue SIGTERM.\n");
         }
 
         wait(NULL);
@@ -99,4 +100,33 @@ int convert_audio_to_dat(
 }
 
 
+char* parse_dat_file(const char* dat_file){
+    FILE *fptr = fopen(dat_file, "rb"); 
+    try_or_return_msg(fptr, NULL, NULL, "Could not open this file."); 
 
+    fseek(fptr, 0, SEEK_END);
+    long file_size = ftell(fptr);
+    rewind(fptr); 
+
+    unsigned char *buffer = malloc(file_size);
+    if (buffer == NULL) {
+        perror("Out of memory.");
+        fclose(fptr);
+        return NULL;
+    }
+
+    printf("file size: %liKiB\n", file_size / 1024);
+
+    size_t read = fread(buffer, 1, file_size, fptr);
+
+    for (size_t i = 0; i < read; i++) {
+        printf("%02X ", buffer[i]);  // Print in hex
+        if ((i + 1) % 16 == 0) {
+            printf("\n");
+            break;
+        }
+    }
+    char* result = encode64(buffer, read);
+    fclose(fptr);free(buffer);
+    return result;
+}
