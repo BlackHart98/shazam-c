@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<unistd.h>
 #include<string.h>
+#include<assert.h>
 
 #include"utils.h"
 
@@ -24,35 +25,38 @@ void deinit_string(string* vec){
 
 
 // side-effect: Table doubling
-int append_string(string* dst, const char* src){
-    size_t src_len = strlen(src);
+int append_string(string* dst, const char* src, const size_t* len){
+    assert((dst->len < dst->max)&&"Illegal string object, capacity(max) should be greater than len.");
+    size_t src_len;
+    if (len == NULL){
+        src_len = strlen(src);
+    } else {
+        src_len = *len;
+    }
     size_t expeted_len = dst->len + src_len + 1;
-    // printf("the size of %s is %lu\n", src, src_len);
 
     if (dst->max < expeted_len){
         dst->max = expeted_len * 2;
     }
-    if (dst->str == NULL || dst->len == 0){
+    if (dst->str == NULL){
         dst->str = (char*) malloc(dst->max);
         if (dst->str == NULL) return 1;
-        dst->str[0] = '\0';
-
     } else{
         char *temp_ = (char*) realloc(dst->str, dst->max);
         if (temp_ == NULL) return 1;
         dst->str = temp_;
-        dst->str[dst->len] = '\0';
     }
-    strcat(dst->str, src);
+    memcpy(&(dst->str[dst->len]), src, src_len);
     dst->len += src_len;
+    dst->str[dst->len] = 0;
     return 0;
 }
 
 
 // side-effect: Table doubling
 int append_char(string* dst, const char src_char){
+    assert((dst->len < dst->max)&&"Illegal string object, capacity(max) should be greater than len.");
     if (src_char == '\0') return 0;
-    // printf("got here................. %c\n", src_char);
     size_t expeted_len = dst->len + 1 + 1; // +1 for char, +1 for '\0'
 
     if (dst->str == NULL) {

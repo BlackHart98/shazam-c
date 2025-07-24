@@ -3,6 +3,7 @@ CFLAGS = -fsanitize=address -g -O0 -Iinclude -Wall -Werror
 
 
 BUILD_PATH = ./build
+LDFLAGS = -L/opt/homebrew/opt/curl/lib -lcurl
 
 
 
@@ -19,7 +20,7 @@ build-clean: clean create_dir $(BUILD_PATH)/main
 
 $(BUILD_PATH)/main: $(OBJS)
 	@echo "Compiling $(BUILD_PATH)/main ..."
-	@$(CC) $(CFLAGS) $(OBJS) -o $(BUILD_PATH)/main
+	@$(CC) $(CFLAGS) $(OBJS) -o $(BUILD_PATH)/main $(LDFLAGS)
 	@echo "Compilation successful."
 
 

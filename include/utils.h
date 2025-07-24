@@ -7,7 +7,7 @@
     failure_result,                     \
     failure_return,                     \
     message)                            if (function_call == failure_result) {\
-                                            printf("%s\n", message);\
+                                            fprintf(stderr, "%s\n", message);\
                                             return failure_return;\
                                         }
 
@@ -23,7 +23,7 @@ typedef struct _string{
     char *str;
 } string;
 
-int append_string(string*, const char*);                 // return non-zero if it fails
+int append_string(string*, const char*, const size_t*);                 // return non-zero if it fails
 string init_string(size_t);                              // return non-zero if it fails
 void deinit_string(string*);                             // return non-zero if it fails
 int append_char(string*, const char);                    // return non-zero if it fails

@@ -2,7 +2,8 @@
 #include<stdlib.h>
 #include<string.h>
 #include <sys/stat.h>
-#include <stdbool.h>   
+#include <stdbool.h>
+#include<curl/curl.h>   
 
 #include"ffmpeg.h"
 #include"utils.h"
@@ -36,7 +37,9 @@ const char USAGE[] =
 void shazam_from_audio_source();                            // shazam music from the audio source
 void shazam_from_file();                                    // shazam music from file - this will be worked on in the future
 int _has_arg_value(int, int);
-int curl_request(char*, const char*, const char*);          // return non-zero if it fails
+int curl_request(string*, const string*, const char*);          // return non-zero if it fails
+size_t write_chunk(void *data, size_t size, size_t nmemb, void *result);
+
 
 int fetch_api_key(string*, const char*);            // return non-zero if it fails
 
@@ -55,7 +58,7 @@ int main(int argc, char *argv[]){
             return 0;
         } else if (memcmp(argv[idx], "-a", 2) == 0){
             try_or_return(_has_arg_value(idx + 1, argc), 1, 1);
-            if (append_string(&api_key, argv[idx + 1]) != 0) return 1;
+            if (append_string(&api_key, argv[idx + 1], NULL) != 0) return 1;
             idx += 1;
         } else if (memcmp(argv[idx], "-s", 2) == 0){
             try_or_return(_has_arg_value(idx + 1, argc), 1, 1);
@@ -74,15 +77,15 @@ int main(int argc, char *argv[]){
         }
         idx++;
     }
-    string file_name = init_string(100);
+    string file_name = init_string(1);
     if (idx < argc) {
-        append_string(&file_name, argv[idx]);
+        append_string(&file_name, argv[idx], NULL);
         // convert file
         struct stat buffer;
         try_or_return_msg(stat(file_name.str, &buffer), -1, 1, "Could not find the file.");
         convert_audio_to_dat(file_name.str, DEFAULT_AUDIO_FILE_CONVERTED, recording_time_str);
     } else {
-        append_string(&file_name, DEFAULT_AUDIO_FILE);
+        append_string(&file_name, DEFAULT_AUDIO_FILE, NULL);
         try_or_return(
             ffmpeg_record_audio_from_source(
                 DEFAULT_MEDIA_FORMAT, 
@@ -102,7 +105,12 @@ int main(int argc, char *argv[]){
     printf(":::::::::::::::::Audio Base 64:::::::::::::::::::::::::\n");
     printf("%s\n", audio_b64);
 
+    string json_response = init_string(100);
+    curl_request(&json_response, &api_key, audio_b64);
+
+
     if (audio_b64 != NULL) free(audio_b64);
+    deinit_string(&json_response);
     deinit_string(&api_key);
     deinit_string(&file_name);
     return 0;
@@ -113,7 +121,7 @@ int fetch_api_key(string* api_key, const char* api_key_vault){
     try_or_return_msg(fptr, NULL, 1, "Internal error unable to read API key vault."); 
     char buffer[BUFFER_SIZE];  
     while (fgets(buffer, BUFFER_SIZE, fptr) != NULL) {
-        append_string(api_key, buffer);
+        append_string(api_key, buffer, NULL);
     }
     fclose(fptr); 
     return 0;
@@ -130,19 +138,51 @@ int _has_arg_value(int next_idx, int argc){
 
 // curl utility - this won't be used at all lol! I just wanted to put this here 
 // so I don't need to do a look up
-int curl_request(char* request, const char *api_key, const char* audio_base_64){
-    char buffer[BUFFER_SIZE];
-    int result = snprintf(
-        buffer,
-        BUFFER_SIZE,
-        "curl --silent -X POST"
-        "   'https://shazam.p.rapidapi.com/songs/v2/detect'"
-        "   --header 'content-type: text/plain'"
-        "   --header 'x-rapidapi-host: shazam.p.rapidapi.com'"
-        "   --header \"x-rapidapi-key: %s\""
-        "   --data %s",
-        api_key, audio_base_64);
-    if (result == -1) return -1;
-    memcpy(request, buffer, strlen(buffer));
+int curl_request(string *json_response, const string *api_key, const char *audio_base_64){
+    CURLcode ret; 
+    CURL *curl = curl_easy_init();
+    if (curl == NULL){
+        fprintf(stderr, "Could not initialize curl.\n");
+        return 1;
+    }
+
+    curl_easy_setopt(curl, CURLOPT_URL, "https://shazam.p.rapidapi.com/songs/v2/detect");
+
+    string response = init_string(1000);
+    struct curl_slist *headers = NULL;
+    string key_header = init_string(24);
+    append_string(&key_header, "x-rapidapi-key: ", NULL);
+    append_string(&key_header, api_key->str, NULL);
+
+    printf("%s\n", key_header.str);
+
+    headers = curl_slist_append(headers, "content-type: text/plain");
+    headers = curl_slist_append(headers, "x-rapidapi-host: shazam.p.rapidapi.com");
+    headers = curl_slist_append(headers, key_header.str);
+
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, audio_base_64);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(audio_base_64));
+
+
+    ret = curl_easy_perform(curl);
+    if (ret != CURLE_OK){
+        fprintf(stderr, "Something went wrong: %d", ret); // I will replace all of my error with this
+        curl_easy_cleanup(curl);
+        return 1;
+    }
+    printf("help meeeeeeee: %s\n", response.str);
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+    free(response.str);
+    free(key_header.str);
     return 0;
+}
+
+
+size_t write_chunk(void *data, size_t size, size_t nmemb, void *result){
+    size_t actual_size = size * nmemb;
+    string *response = (string *) result;
+    try_or_return(append_string(response, data, &actual_size), 1, CURL_WRITEFUNC_ERROR);
+    return actual_size;
 }
