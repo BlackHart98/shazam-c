@@ -1,10 +1,10 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<string.h>
-#include<assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <assert.h>
 
-#include"utils.h"
+#include "utils.h"
 
 
 string init_string(size_t init_size){

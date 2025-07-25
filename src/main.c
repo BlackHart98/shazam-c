@@ -1,13 +1,13 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <stdbool.h>
-#include<curl/curl.h>   
+#include <curl/curl.h>   
 
-#include"ffmpeg.h"
-#include"utils.h"
-#include"base64.h"
+#include "ffmpeg.h"
+#include "utils.h"
+#include "base64.h"
 
 #define DEFAULT_AUDIO_SOURCE                    ":1"                        // this is because I use mac lol
 #define DEFAULT_MEDIA_FORMAT                    "avfoundation"              // this is because I use mac lol
@@ -172,7 +172,7 @@ int curl_request(string *json_response, const string *api_key, const char *audio
     
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_chunk);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);
-    
+
     ret = curl_easy_perform(curl);
     if (ret != CURLE_OK){
         fprintf(stderr, "Something went wrong: %d", ret); // I will replace all of my error with this
