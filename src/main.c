@@ -169,8 +169,10 @@ int curl_request(string *json_response, const string *api_key, const char *audio
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, audio_base_64);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(audio_base_64));
-
-
+    
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_chunk);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);
+    
     ret = curl_easy_perform(curl);
     if (ret != CURLE_OK){
         fprintf(stderr, "Something went wrong: %d", ret); // I will replace all of my error with this
@@ -178,9 +180,10 @@ int curl_request(string *json_response, const string *api_key, const char *audio
         return 1;
     }
     printf("help meeeeeeee: %s\n", response.str);
+
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
-    free(response.str);
+    if (response.str != NULL) free(response.str);
     free(key_header.str);
     return 0;
 }
