@@ -1,4 +1,5 @@
 #ifndef BASE64_H_
+#define BASE64_H_
 
 #include<stdlib.h>
 
