@@ -8,26 +8,23 @@ This is largely inspired by this project https://github.com/loiccoyle/shazam-cli
 ## Prerequisites
 1. Ensure to have ffmpeg and curl installed
 2. Get API key from https://rapidapi.com/apidojo/api/shazam
+3. Run the command below to build recipe executable
+On Unix-like system
+```sh
+cc nob.c -o nob
+```
 
 
 ## Build binary
-1. Run this
+1. Run this 
 ```sh
-make release
+./nob
 ```
 
 ## How to run
 1. Shazam from local file
 ```sh
-./build/shazam-clone <file_path>
-```
-2. Shazam from audio source
-```sh
-./build/shazam-clone
-```
-3. For help 
-```sh
-./build/shazam-clone -h
+sh run_test.sh
 ```
 
 

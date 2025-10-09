@@ -6,3 +6,9 @@ build/
 .vscode/
 tmp/
 examples/
+libs/
+archive/
+init.sh
+nob
+nob.old
+resolve_nob.sh
