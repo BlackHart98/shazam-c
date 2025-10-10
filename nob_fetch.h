@@ -1,4 +1,4 @@
-/* nob_fetch - v0.1.0 - Public Domain https://github.com/BlackHart98/nob.h/commit/5e384a550fdd7c529130cc269539aca8f6823bef
+/* nob_fetch - v0.1.0 - Public Domain https://github.com/BlackHart98/nob.h/tree/private/nob_fetch_extends
     This library in an extension of the nob library [NoBuild](https://github.com/tsoding/nobuild) to support
     remote fetch of C source files, it takes a build it yourself approach. This project is still largely experimental
 
