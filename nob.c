@@ -4,12 +4,15 @@
 #include "nob_fetch.h"
 
 #define LIBS_DIR "libs/"
-#define LIB_CURL_PATH "/opt/local/lib/"
+#if !defined(_WIN32)
+    #define LIB_CURL_PATH "/opt/local/lib/"
+#else
+    #error "Build failed, could not find libcurl /opt/local/lib/"
+#endif
 #define SHAZAMC_INCLUDE "shazamc/"
 #define BUILD_DIR "build/"
 #define CURL_DYLIB "curl"
 #define TEST_PATH "tests/"
-#define CUSTOM_VAULT "/Users/pius/Desktop/Dev/"
 #define SHAZAMC_DYLIB "shazamc"
 
 

@@ -12,3 +12,4 @@ init.sh
 nob
 nob.old
 resolve_nob.sh
+shared.h
