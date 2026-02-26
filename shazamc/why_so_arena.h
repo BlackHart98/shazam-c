@@ -79,6 +79,9 @@ typedef struct ArenaAllocator {
 ARENA_LOCAL slice_t
 make_slice(void *object, size_t len_in_bytes);
 
+ARENA_LOCAL const_slice_t
+make_const_slice(const char *object);
+
 ARENA_LOCAL slice_t 
 interface_alloc(size_t len, size_t size_);
 

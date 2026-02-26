@@ -17,6 +17,7 @@
 #define SHAZAMC_H
 
 #include <stdlib.h>
+#define WSA_IMPLEMENTATION
 #include "why_so_arena.h"
 
 // BASE64 functions
