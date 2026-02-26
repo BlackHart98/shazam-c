@@ -17,6 +17,7 @@
 #define SHAZAMC_H
 
 #include <stdlib.h>
+#include "why_so_arena.h"
 
 // BASE64 functions
 extern char* shazamc_base64_encode(const unsigned char *bytes_stream, size_t stream_len);
@@ -32,6 +33,8 @@ extern char* shazamc_ffmpeg_parse_dat_file(const char*);
 static inline void shazamc_ffmpeg_start_recording(const char *audio_file_target);
 
 
+
+// @todo: Replace with slice
 // UTILS
 typedef struct string_t{
     size_t len;

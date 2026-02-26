@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <dlfcn.h>
+#define WSA_IMPLEMENTATION
+#include "why_so_arena.h"
 #include "shazamc.h"
 
 int main(void){
